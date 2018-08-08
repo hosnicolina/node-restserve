@@ -57,11 +57,11 @@ app.post("/usuario", function(req, res) {
 
 app.put("/usuario/:id", function(req, res) {
   let id = req.params.id;
-  let body = _.pick(req.body, "nombre", "email", "img", "role", "estado");
+  let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
   Usuario.findByIdAndUpdate(
     id,
     body,
-    { new: true, runValidators: true },
+    { new: true, runValidators: true , context: 'query'},
     (err, usuarioUD) => {
       if (err) {
         return res.status(400).json({
