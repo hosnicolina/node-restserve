@@ -1,16 +1,17 @@
 const express = require("express");
 const Usuario = require("../models/usuario");
+const { verificaToken , verificaAdminRole } = require("../middlewares/auth");
 const _ = require("underscore");
 
 const app = express();
 
 const bcrypt = require("bcrypt");
 
-app.get("/usuario", function(req, res) {
+app.get("/usuario", verificaToken, (req, res) => {
   let from = Number(req.query.from) || 0;
   let page = Number(req.query.per_page) || 5;
 
-  Usuario.find({estado:true}, "nombre email role estado img")
+  Usuario.find({ estado: true }, "nombre email role estado img")
     .limit(page)
     .skip(from)
     .exec((err, usuariosDB) => {
@@ -21,7 +22,7 @@ app.get("/usuario", function(req, res) {
         });
       }
 
-      Usuario.count({estado:true}, (err, conteo) => {
+      Usuario.count({ estado: true }, (err, conteo) => {
         res.json({
           ok: true,
           usuarios: usuariosDB,
@@ -31,7 +32,7 @@ app.get("/usuario", function(req, res) {
     });
 });
 
-app.post("/usuario", function(req, res) {
+app.post("/usuario", [verificaToken,verificaAdminRole], function(req, res) {
   body = req.body;
   let usuario = new Usuario({
     nombre: body.nombre,
@@ -55,18 +56,26 @@ app.post("/usuario", function(req, res) {
   });
 });
 
-app.put("/usuario/:id", function(req, res) {
+app.put("/usuario/:id", [verificaToken,verificaAdminRole], (req, res) => {
   let id = req.params.id;
-  let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
+  let body = _.pick(req.body, ["nombre", "email", "img", "role", "estado"]);
   Usuario.findByIdAndUpdate(
     id,
     body,
-    { new: true, runValidators: true , context: 'query'},
+    { new: true, runValidators: true, context: "query" },
     (err, usuarioUD) => {
       if (err) {
         return res.status(400).json({
           ok: false,
           err
+        });
+      }
+      if (!usuarioUD) {
+        res.status(404).json({
+          ok: false,
+          err: {
+            message: "Usuario no encontrado"
+          }
         });
       }
       res.json({
@@ -77,7 +86,7 @@ app.put("/usuario/:id", function(req, res) {
   );
 });
 
-app.delete("/usuario/:id", function(req, res) {
+app.delete("/usuario/:id", [verificaToken,verificaAdminRole], (req, res) => {
   let id = req.params.id;
 
   Usuario.findByIdAndUpdate(
@@ -88,7 +97,9 @@ app.delete("/usuario/:id", function(req, res) {
       if (err) {
         return res.status(400).json({
           ok: false,
-          err
+          err: {
+            message: `el usuario con el id ${id} no existe`
+          }
         });
       }
       // if (!usuarioDB) {
