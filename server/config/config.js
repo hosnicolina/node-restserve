@@ -21,6 +21,12 @@ process.env.NODE_ENV = process.env.NODE_ENV || "dev";
   * SEED de autenticacion
   */
 
+ process.env.CLIENT_ID = process.env.CLIENT_ID ||'570722307797-lkutu98e7pgllj2bib2t09hv035sllf2.apps.googleusercontent.com';
+
+  /**
+  * Google client id
+  */
+
  process.env.SEED = process.env.SEED ||'este-es-el-seed-desarrollo';
 
 /**
