@@ -144,7 +144,7 @@ app.post("/productos", verificaToken, (req, res) => {
       return res.status(500).json({
         ok: false,
         err: {
-          message: "usuario no puedo ser creado"
+          message: "producto no puedo ser creado"
         }
       });
     }
